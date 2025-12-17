@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>500k minutes countdown</title>
+
+  <!-- Elegant fonts -->
+  <!-- https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Playfair+Display:wght@700&display=swap -->
+
+  <style>
+    :root{
+      --bg1: #140B34;
+      --bg2: #3B0A45;
+      --card: rgba(255,255,255,0.12);
+      --border: rgba(255,255,255,0.18);
+      --text: #ffffff;
+      --accent: #FFD36E;           /* golden festive accent */
+      --whatsapp: #25D366;         /* WhatsApp green */
+      --whatsapp-dark: #128C7E;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* avoid scrollbars */
+      color: var(--text);
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    /* Subtle animated bokeh/confetti overlay */
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      inset: -10%;
+      pointer-events: none;
+      background:
+        radial-gradient(20px 20px at 10% 30%, rgba(255, 255, 255, 0.12), transparent 60%),
+        radial-gradient(14px 14px at 80% 20%, rgba(255, 200, 120, 0.10), transparent 60%),
+        radial-gradient(16px 16px at 60% 80%, rgba(255, 180, 220, 0.12), transparent 60%),
+        radial-gradient(12px 12px at 30% 60%, rgba(180, 220, 255, 0.10), transparent 60%);
+      transform: translate3d(0,0,0);
+      animation: floaty 18s linear infinite;
+    }
+    body::after {
+      filter: blur(8px);
+      opacity: 0.6;
+      animation-duration: 26s;
+      animation-direction: reverse;
+    }
+    @keyframes floaty {
+      0%   { transform: translateY(0) rotate(0deg); }
+      50%  { transform: translateY(-2vh) rotate(180deg); }
+      100% { transform: translateY(0) rotate(360deg); }
+    }
+
+    /* Respect reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      body::before, body::after { animation: none; }
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .countdown-card {
+      width: min(1280px, 96vw);
+      padding-block: clamp(32px, 8vh, 96px);
+	  adding-inline: clamp(16px, 6vw, 48px);
+      border-radius: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(14px) saturate(120%);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 0 40px rgba(255,255,255,0.06);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(18px, 3.5vw, 28px);
+      text-align: center;
+    }
+
+    .title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      font-size: clamp(24px, 4.8vw, 56px);
+      margin: 0;
+      background: linear-gradient(90deg, #ffffff, var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.10);
+    }
+
+    .subtitle {
+      font-weight: 300;
+      font-size: clamp(14px, 2.4vw, 18px);
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(10px, 2.8vw, 24px);
+      user-select: none;
+      line-height: 1;
+	  
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+
+    .block {
+      display: grid;
+      gap: 8px;
+      align-items: center;
+      justify-items: center;
+      min-width: clamp(72px, 20vw, 180px);
+      padding: clamp(10px, 2.6vw, 18px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+      box-shadow: inset 0 10px 18px rgba(0,0,0,0.18);
+    }
+
+    .digits {
+      font-variant-numeric: tabular-nums lining-nums;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+      font-weight: 700;
+      font-size: clamp(28px, 10vw, 80px);
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    }
+
+    .label {
+      font-size: clamp(10px, 2.8vw, 14px);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.75;
+    }
+
+    .colon {
+      font-weight: 700;
+      font-size: clamp(24px, 10vw, 72px);
+      opacity: 0.55;
+      transform: translateY(-2px);
+	  flex: 0 1 auto;
+    }
+
+    .whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      color: var(--whatsapp);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: clamp(14px, 3.6vw, 18px);
+      transition: all 200ms ease;
+      border: 1px dashed rgba(37, 211, 102, 0.35);
+      background: rgba(37, 211, 102, 0.08);
+    }
+    .whatsapp:hover, .whatsapp:focus-visible {
+      color: var(--whatsapp-dark);
+      background: rgba(37, 211, 102, 0.16);
+      box-shadow: 0 8px 18px rgba(37, 211, 102, 0.25);
+      outline: none;
+    }
+    .whatsapp svg {
+      width: 1.2em;
+      height: 1.2em;
+      flex: 0 0 auto;
+      fill: currentColor; /* inherit green */
+    }
+	footer {
+		margin-top: 3em;
+	}
+
+    /* Finish state pulse */
+    .finished .digits {
+      animation: celebrate 1.1s ease-in-out infinite;
+    }
+    @keyframes celebrate {
+      0%   { text-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 0px var(--accent); }
+      50%  { text-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 16px var(--accent); }
+      100% { text-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 0px var(--accent); }
+    }
+
+    /* Small screens spacing tweaks */
+    @media (max-width: 420px) {
+      .block { border-radius: 16px; padding: 10px; }
+      .subtitle { display: none; }
+    }
+	
+	/* === Confetti canvas overlay === */
+	#confetti {
+	  position: fixed;
+	  inset: 0;
+	  width: 100vw;
+	  height: 100vh;
+	  pointer-events: none;
+	  z-index: 999;          /* above everything in the page */
+	  display: none;         /* only visible when turned on */
+	}
+
+	/* Turn on confetti */
+	.confetti-on #confetti {
+	  display: block;
+	}
+
+	/* Optional fade-out for a smoother end */
+	@keyframes confettiFade {
+	  to { opacity: 0; }
+	}
+	.confetti-fadeout {
+	  animation: confettiFade 0.6s ease-out forwards;
+	}
+
+  </style>
+</head>
+<body>
+  <main class="page">
+	<canvas id="confetti"></canvas>
+	
+    <section class="countdown-card" aria-label="Countdown">
+      <header>
+        <h1 id="title" class="title">Event Title</h1>
+        <p id="subtitle" class="subtitle">Counting down to the moment…</p>
+      </header>
+
+      <div id="timer" class="timer" role="timer" aria-live="polite" aria-atomic="true">
+
+        <div class="block">
+          <div id="days" class="digits">00</div>
+          <div class="label">Days</div>
+        </div>
+        <div class="colon">:</div>
+
+        <div class="block">
+          <div id="hours" class="digits">00</div>
+          <div class="label">Hours</div>
+        </div>
+        <div class="colon">:</div>
+        <div class="block">
+          <div id="minutes" class="digits">00</div>
+          <div class="label">Minutes</div>
+        </div>
+        <div class="colon">:</div>
+        <div class="block">
+          <div id="seconds" class="digits">00</div>
+          <div class="label">Seconds</div>
+        </div>
+      </div>
+
+
+		<footer>
+			<a id="waLink"
+				class="whatsapp"
+				href="#"
+				ewBox="0 0 32 32" width="24" height="24" aria-hidden="true" focusable="false">
+			   <span id="waText">Message me on WhatsApp</span>
+			</a>
+		</footer>
+    </section>
+  </main>
+
+	<script>
+	  document.addEventListener("DOMContentLoaded", () => {
+		// ===========================
+		// 🔧 CONFIGURATION
+		// ===========================
+		const TITLE = "500k minutes 🎉";
+		//const TARGET = "2025-12-17T16:43:20-03:00"; // ISO 8601 with timezone
+		const TARGET = "2025-12-23T13:30:00-03:00"; // ISO 8601 with timezone
+		const WHATSAPP_NUMBER = String.fromCharCode(...[53,52,57,49,49,51,50,49,53,49,49,52,51]);
+		const WHATSAPP_MESSAGE = "RSVP: Count me in! 🎊";
+		const SUBTITLE_TEXT = "25M seconds";
+		const CONFETTI_MS = 3000;
+		const CONFETTI_COLORS = ["#FFD36E", "#25D366", "#ffffff", "#f6a", "#9cf"];
+		const USE_12H = false;                      // true => “h:mm AM/PM”; false => “HH:MM”
+		const ALERT_PREFIX = "The event took place on"; // i18n-friendly prefix
+
+		// ===========================
+		// ⏱️ COUNTDOWN LOGIC
+		// ===========================
+		const elTitle   = document.getElementById("title");
+		const elSub     = document.getElementById("subtitle");
+		const elDays    = document.getElementById("days");
+		const elHours   = document.getElementById("hours");
+		const elMinutes = document.getElementById("minutes");
+		const elSeconds = document.getElementById("seconds");
+		const elTimer   = document.getElementById("timer");
+		const waLink    = document.getElementById("waLink");
+		const waText    = document.getElementById("waText");
+
+		// Guard: make debugging easier
+		console.assert(waLink, "Element #waLink not found in DOM. Check the ID on the WhatsApp <a>.");
+
+		// Apply config if elements exist
+		if (elTitle) elTitle.textContent = TITLE;
+		if (elSub)   elSub.textContent   = SUBTITLE_TEXT;
+
+		const buildWaUrl = (num, msg) => `https://wa.me/${num}`;
+		//const buildWaUrl = (num, msg) => `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+		if (waLink) waLink.href = buildWaUrl(WHATSAPP_NUMBER, WHATSAPP_MESSAGE);
+
+		function pad2(n){ return n.toString().padStart(2, "0"); }
+
+		const targetDate = new Date(TARGET);
+		if (Number.isNaN(targetDate.getTime())) {
+		  console.error("Invalid TARGET date format. Use ISO 8601, e.g., 2025-12-31T23:59:59-03:00");
+		  return;
+		}
+
+
+		  let finished = false;  // prevents multiple finish triggers
+		  let iv = null;
+		let alertShown = false;
+
+
+		  function renderZeros() {
+			if (elDays)    elDays.textContent = elDays.textContent || "00"; // if present
+			if (elHours)   elHours.textContent = "00";
+			if (elMinutes) elMinutes.textContent = "00";
+			if (elSeconds) elSeconds.textContent = "00";
+		  }
+
+		  function finish() {
+			if (finished) return;
+			finished = true;
+
+			// Freeze at zero
+			renderZeros();
+			if (elTimer)   elTimer.setAttribute("aria-label", "The moment has arrived!");
+			const card = document.querySelector(".countdown-card");
+			if (card)      card.classList.add("finished");
+			//if (waText)    waText.textContent = "It’s time! Open WhatsApp";
+
+			// Stop updating
+			if (iv) { clearInterval(iv); iv = null; }
+
+			// Respect reduced motion
+			const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			if (!reduceMotion) {
+			  startConfetti(CONFETTI_MS, CONFETTI_COLORS);
+			  showEventAlert();
+			}
+		  }
+
+  // Extract offset minutes from TARGET (e.g., "-03:00" => -180)
+  function getOffsetMinutesFromISO(isoStr) {
+    const m = isoStr.match(/([+-]\d{2}):?(\d{2})$/);
+    if (!m) return null;
+    const sign = m[1].startsWith("-") ? -1 : 1;
+    const hours = Math.abs(parseInt(m[1], 10));
+    const minutes = parseInt(m[2], 10);
+    return sign * (hours * 60 + minutes);
+  }
+
+  // Format the event date/time in its own offset (not the viewer’s local TZ)
+  function formatEventDate(isoStr, use12h = USE_12H) {
+    const t = new Date(isoStr);
+    const offsetMin = getOffsetMinutesFromISO(isoStr);
+    // If we have an explicit offset, create an "offset-adjusted" date and read UTC parts
+    const d = (offsetMin !== null)
+      ? new Date(t.getTime() + offsetMin * 60000)
+      : t;
+
+    // Read UTC parts to avoid local timezone interference
+    const year  = d.getUTCFullYear();
+    const month = d.getUTCMonth(); // 0-11
+    const day   = d.getUTCDate();  // 1-31
+    let hour    = d.getUTCHours();
+    const min   = d.getUTCMinutes();
+
+    const months = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    const monthName = months[month];
+
+    let timeStr;
+    if (use12h) {
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      timeStr = `${displayHour}:${pad2(min)} ${ampm}`;
+    } else {
+      timeStr = `${pad2(hour)}:${pad2(min)}`;
+    }
+
+    return `${monthName} ${day}, ${year}, at ${timeStr}`;
+  }
+
+  function showEventAlert() {
+    if (alertShown) return;
+    alertShown = true;
+    const formatted = formatEventDate(TARGET, USE_12H);
+    alert(`${ALERT_PREFIX} ${formatted}`);
+  }
+
+		function update() {
+		  const now = new Date();
+		  let diff = targetDate.getTime() - now.getTime();
+
+		  if (diff <= 0) {
+			  finish();
+			  return;
+		  }
+
+		  if (diff <= 0) {
+			if (elDays)    elDays.textContent = "00";
+			if (elHours)   elHours.textContent = "00";
+			if (elMinutes) elMinutes.textContent = "00";
+			if (elSeconds) elSeconds.textContent = "00";
+			
+			if (elTimer)   elTimer.setAttribute("aria-label", "The moment has arrived!");
+			const card = document.querySelector(".countdown-card");
+			if (card) card.classList.add("finished");
+			if (waText) waText.textContent = "It’s time! Open WhatsApp";
+			return;
+		  }
+
+		  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+		  diff -= days * 24 * 60 * 60 * 1000;
+		  
+		  const totalHours = Math.floor(diff / (1000 * 60 * 60));
+		  diff -= totalHours * 1000 * 60 * 60;
+
+		  const minutes = Math.floor(diff / (1000 * 60));
+		  diff -= minutes * 1000 * 60;
+
+		  const seconds = Math.floor(diff / 1000);
+
+		  if (elDays)    elDays.textContent = String(days);
+		  if (elHours)   elHours.textContent = String(totalHours);
+		  if (elMinutes) elMinutes.textContent = pad2(minutes);
+		  if (elSeconds) elSeconds.textContent = pad2(seconds);
+
+		  if (elTimer) {
+			const aria = elDays
+					? `Time remaining: ${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`
+					: `Time remaining: ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+			elTimer.setAttribute("aria-label", aria);
+		  }
+		}
+
+		
+// Initial paint + interval (run confetti immediately if already past)
+const isPast = Date.now() >= targetDate.getTime();
+
+if (isPast) {
+  finish(); // freezes at zero + confetti
+  showEventAlert();
+} else {
+  update();
+  iv = setInterval(update, 1000);
+}
+
+
+		const card = document.querySelector(".countdown-card");
+		if (card) {
+		  const observer = new MutationObserver(() => {
+			if (card.classList.contains("finished")) {
+			  clearInterval(iv);
+			  observer.disconnect();
+			}
+		  });
+		  observer.observe(card, { attributes: true });
+		}
+		
+		
+
+// ===== Confetti engine =====
+  function startConfetti(durationMs = 3000, colors = CONFETTI_COLORS) {
+    // Use existing canvas or create one
+    let canvas = document.getElementById("confetti");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.id = "confetti";
+      document.body.appendChild(canvas);
+    }
+
+    document.body.classList.add("confetti-on");
+
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+
+    function resize() {
+      canvas.width  = Math.round(window.innerWidth  * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      canvas.style.width = "100vw";
+      canvas.style.height = "100vh";
+      ctx.scale(dpr, dpr); // draw in CSS pixels
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Particle factory
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const particles = [];
+    const shapes = ["rect", "circle", "triangle"];
+    const gravity = 0.25; // px/frame^2 (tuned for ~60fps)
+
+    const spawnCount = Math.round(180 + Math.random() * 80); // ~180–260 particles
+    for (let i = 0; i < spawnCount; i++) {
+      particles.push({
+        x: rand(0, window.innerWidth),
+        y: rand(-window.innerHeight * 0.2, -20), // start above top
+        vx: rand(-2.2, 2.2),
+        vy: rand(1.2, 3.4),
+        size: rand(6, 12),
+        rot: rand(0, Math.PI * 2),
+        vrot: rand(-0.1, 0.1),
+        color: colors[Math.floor(rand(0, colors.length))],
+        shape: shapes[Math.floor(rand(0, shapes.length))],
+        life: rand(0.8, 1.0), // slight variance for fade out later
+      });
+    }
+
+    let start = null;
+    let running = true;
+
+    function drawParticle(p) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+
+      switch (p.shape) {
+        case "rect":
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          break;
+        case "circle":
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        case "triangle":
+          ctx.beginPath();
+          const s = p.size;
+          ctx.moveTo(0, -s / 2);
+          ctx.lineTo(-s / 2, s / 2);
+          ctx.lineTo(s / 2, s / 2);
+          ctx.closePath();
+          ctx.fill();
+          break;
+      }
+      ctx.restore();
+    }
+
+    function tick(ts) {
+      if (!start) start = ts;
+      const elapsed = ts - start;
+
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      for (const p of particles) {
+        // Physics
+        p.vy += gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vrot;
+
+        // Draw
+        drawParticle(p);
+      }
+
+      // Cull off-screen particles (optional; keeps canvas clean)
+      for (let i = particles.length - 1; i >= 0; i--) {
+        if (particles[i].y > window.innerHeight + 40) particles.splice(i, 1);
+      }
+
+      // Stop spawning/drawing after duration but let remaining particles fall out
+      if (elapsed < durationMs && running) {
+        requestAnimationFrame(tick);
+      } else if (particles.length > 0) {
+        requestAnimationFrame(tick);
+      } else {
+        endConfetti();
+      }
+    }
+
+    function endConfetti() {
+      running = false;
+      canvas.classList.add("confetti-fadeout");
+      setTimeout(() => {
+        document.body.classList.remove("confetti-on");
+        canvas.classList.remove("confetti-fadeout");
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        window.removeEventListener("resize", resize);
+        // Keep canvas around for next time; remove if you prefer:
+        // canvas.remove();
+      }, 600); // matches confettiFade duration
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+	  });
+	</script>
+
+</body>
+</html>
