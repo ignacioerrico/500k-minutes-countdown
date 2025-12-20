@@ -236,7 +236,8 @@
     <section class="countdown-card" aria-label="Countdown">
       <header>
         <h1 id="title" class="title">Event Title</h1>
-        <p id="subtitle" class="subtitle">Counting down to the moment…</p>
+		<!-- <p id="subtitle" class="subtitle">Counting down to the moment…</p> -->
+		<p id="subtitle" class="subtitle">1.5&times;10<sup>9</sup> seconds</p>
       </header>
 
       <div id="timer" class="timer" role="timer" aria-live="polite" aria-atomic="true">
@@ -280,12 +281,12 @@
 		// ===========================
 		// 🔧 CONFIGURATION
 		// ===========================
-		const TITLE = "500k hours 🎉";
+		const TITLE = "25M minutes 🎉";
 		//const TARGET = "2025-12-17T16:43:20-03:00"; // ISO 8601 with timezone
-		const TARGET = "2025-12-23T21:30:00-03:00"; // ISO 8601 with timezone
+		const TARGET = "2025-12-23T16:10:00-03:00"; // ISO 8601 with timezone
 		const WHATSAPP_NUMBER = String.fromCharCode(...[53,52,57,49,49,51,50,49,53,49,49,52,51]);
 		const WHATSAPP_MESSAGE = "RSVP: Count me in! 🎊";
-		const SUBTITLE_TEXT = "25M minutes";
+		const SUBTITLE_TEXT = "1.5&times;10<sup>9</sup> seconds";
 		const CONFETTI_MS = 5000;
 		const CONFETTI_COLORS = ["#FFD36E", "#25D366", "#ffffff", "#f6a", "#9cf"];
 		const USE_12H = false;                      // true => “h:mm AM/PM”; false => “HH:MM”
@@ -309,7 +310,7 @@
 
 		// Apply config if elements exist
 		if (elTitle) elTitle.textContent = TITLE;
-		if (elSub)   elSub.textContent   = SUBTITLE_TEXT;
+		//if (elSub)   elSub.textContent   = SUBTITLE_TEXT;
 
 		const buildWaUrl = (num, msg) => `https://wa.me/${num}`;
 		//const buildWaUrl = (num, msg) => `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
